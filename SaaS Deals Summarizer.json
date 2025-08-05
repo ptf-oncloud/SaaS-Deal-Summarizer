@@ -1,0 +1,363 @@
+{
+  "name": "SaaS Deal Summarizer",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 6
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "7638809d-c312-4726-be1f-65e38bb3be3c",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://appsumo-real-time-data.p.rapidapi.com/category?url=https%3A%2F%2Fappsumo.com%2Fsearch%2F%3Fquery%3Dwhatsapp",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-rapidapi-host",
+              "value": "appsumo-real-time-data.p.rapidapi.com"
+            },
+            {
+              "name": "x-rapidapi-key\t",
+              "value": "697f2c2847msh1a6505e8c447b15p1e7ac0jsn33afcf198d34"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "b2f3be25-47f9-460c-a699-8ec5eda3f96a",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "030486d8-2e18-4db8-8b24-3bd9f586db7a",
+              "name": "name",
+              "value": "={{ $json.public_name }}",
+              "type": "string"
+            },
+            {
+              "id": "6d5f9653-9471-4a77-8589-3f006636e6d5",
+              "name": "price",
+              "value": "={{$json[\"price\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "d1acdc5f-6219-4f9f-b4a7-4629a5de5a78",
+              "name": "link",
+              "value": "={{ $json.media_url }}",
+              "type": "string"
+            },
+            {
+              "id": "b9e98bb1-8705-416d-ab8e-3b90a456b91f",
+              "name": "description",
+              "value": "={{ $json.card_description }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "c5aefef7-9d8b-4654-9060-b72c509b2217",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        928,
+        112
+      ],
+      "id": "e14cadde-8389-469f-8ec0-282ed0eff919",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "rCv0eOgLIIYJAShl",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "messages": {
+          "messageValues": [
+            {
+              "type": "HumanMessagePromptTemplate",
+              "message": "=Summarize this SaaS deal in 3 sentences: "
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        864,
+        0
+      ],
+      "id": "8fdd4e36-0cab-4af4-99f5-46cc9d13ecc4",
+      "name": "Summarize SaaS Deal"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "06a4652f-4133-4b4a-9bb2-ebcbad172f65",
+              "name": "chatInput",
+              "value": "={{ $json.link }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        0
+      ],
+      "id": "a598ded6-1324-42d2-b27a-c525b11e6d42",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "fromEmail": "boss.preston08@gmail.com",
+        "toEmail": "boss.preston08@gmail.com",
+        "subject": "Daily SaaS Deals Digest",
+        "html": "={{ $json.emailBody }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        256,
+        192
+      ],
+      "id": "004447d1-65f8-4cdc-8e28-0996bc53a9d9",
+      "name": "Send email",
+      "webhookId": "046f3a99-6e7b-487c-b13a-00b74bbb2fd0",
+      "credentials": {
+        "smtp": {
+          "id": "XE8jXu8ghDsfElR4",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "14bp2o-HO7nhBCnF0LOFVlnGpYNGhBy53vrQXz4FvEz4",
+          "mode": "list",
+          "cachedResultName": "SaaS Deals n8n",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14bp2o-HO7nhBCnF0LOFVlnGpYNGhBy53vrQXz4FvEz4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/14bp2o-HO7nhBCnF0LOFVlnGpYNGhBy53vrQXz4FvEz4/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Deal Name": "={{ $('Edit Fields').item.json.name }}",
+            "Summary (From OPENAI):": "={{ $json.text }}",
+            "Price:": "={{ $('Edit Fields').item.json.price }}",
+            "Link:": "={{ $('Edit Fields').item.json.link }}"
+          },
+          "matchingColumns": [
+            "Deal Name"
+          ],
+          "schema": [
+            {
+              "id": "Deal Name",
+              "displayName": "Deal Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Summary (From OPENAI):",
+              "displayName": "Summary (From OPENAI):",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Price:",
+              "displayName": "Price:",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Link:",
+              "displayName": "Link:",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        0,
+        192
+      ],
+      "id": "2b0fb560-2652-403f-a404-ecab0fb1bd60",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "9u4ugbYKmZ5WKrfa",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarize SaaS Deal",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize SaaS Deal": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Summarize SaaS Deal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6fa6a762-c557-4baa-8055-1139b9ad55ea",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "54cd4abf80e3fd09e72d5fe8140ea5498d6dddc8151b01ef17bb66f9ff2adbe2"
+  },
+  "id": "JAvAx5ZMPd5bAyrJ",
+  "tags": []
+}
