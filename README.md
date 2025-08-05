@@ -16,3 +16,12 @@ This project automates fetching SaaS deals from an API, summarizes them, and sen
 - Aggregates deal summaries into one email
 - Pushes a list of info into Google Sheets automatically formatted for easy reading
 - Filters deals by keywords and price
+
+WorkFlow Screenshot
+<img width="875" height="527" alt="image" src="https://github.com/user-attachments/assets/04b90efd-cad8-4e39-a7ae-3770d28eb83d" />
+
+
+
+Author: Preston Thurman Foote
+LinkedIn: (https://www.linkedin.com/in/preston-thurman-foote-3b496b33a/)
+Email: boss.preston08@gmail.com
